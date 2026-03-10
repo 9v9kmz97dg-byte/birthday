@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Туған күнге шақыру 💓</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+/* ВАШ CSS ОСТАЛСЯ БЕЗ ИЗМЕНЕНИЙ */
+</style>
+</head>
+
+<body>
+
+<div class="petals-container" id="petals"></div>
+
+<div class="container">
+  <section class="hero">
+    <div class="flower-ornament">🌸✨🌸</div>
+    <h1>Мама, туған<br>күніңізбен!</h1>
+    <span class="heart-icon">💓</span>
+    <p class="invitation-text">
+      Сізді туған күніңізге орай<br>кешкі асқа шақырамыз 💐
+    </p>
+    <div class="divider"></div>
+  </section>
+
+  <div class="card">
+    <div class="card-title">
+      <i class="fas fa-calendar-star"></i>
+      📅 Наурыз 2026
+    </div>
+    <div class="calendar">
+      <div class="calendar-header">НАУРЫЗ 2026</div>
+      <div class="calendar-weekdays">
+        <span>Дс</span><span>Сс</span><span>Ср</span><span>Бс</span><span>Жм</span><span>Сн</span><span>Жс</span>
+      </div>
+      <div class="calendar-days" id="calendarDays"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <i class="fas fa-info-circle"></i>
+      ✨ Мәліметтер
+    </div>
+
+    <div class="detail-row">
+      <div class="detail-icon"><i class="fas fa-calendar-day"></i></div>
+      <div class="detail-content">
+        <div class="detail-label">Күні</div>
+        <div class="detail-value">10 наурыз, 2026 жыл</div>
+      </div>
+    </div>
+
+    <div class="detail-row">
+      <div class="detail-icon"><i class="fas fa-clock"></i></div>
+      <div class="detail-content">
+        <div class="detail-label">Уақыты</div>
+        <div class="detail-value">21:00</div>
+      </div>
+    </div>
+
+    <div class="detail-row">
+      <div class="detail-icon"><i class="fas fa-map-marker-alt"></i></div>
+      <div class="detail-content">
+        <div class="detail-label">Өтілетін орны</div>
+        <div class="detail-value">Lugo</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <i class="fas fa-music"></i>
+      🎵 Домбыра әуені
+    </div>
+
+    <div class="music-player">
+      <div class="music-visualizer" id="visualizer"></div>
+
+      <button class="play-btn" id="playBtn">
+        <i class="fas fa-play" id="playIcon"></i>
+      </button>
+
+      <div class="music-label" id="musicLabel">
+        Әуенді тыңдау үшін басыңыз
+      </div>
+    </div>
+  </div>
+
+  <section class="footer">
+    <div class="footer-text">
+      Сіздің келуіңізге<br>қуаныштымыз! 🥰
+    </div>
+    <div class="footer-flowers">🌷🌹🌸🌺🌷</div>
+  </section>
+</div>
+
+<script>
+(function(){
+
+// ==== Calendar ====
+const calDays=document.getElementById("calendarDays")
+const firstDayIndex=6
+const daysInMonth=31
+
+for(let i=0;i<firstDayIndex;i++){
+let e=document.createElement("div")
+e.className="calendar-day empty"
+calDays.appendChild(e)
+}
+
+for(let d=1;d<=daysInMonth;d++){
+let day=document.createElement("div")
+day.className="calendar-day"
+day.textContent=d
+if(d===10)day.classList.add("today")
+if(d<10)day.classList.add("past")
+calDays.appendChild(day)
+}
+
+
+// ==== Visualizer ====
+const visualizer=document.getElementById("visualizer")
+const bars=[]
+for(let i=0;i<20;i++){
+let bar=document.createElement("div")
+bar.className="music-bar"
+visualizer.appendChild(bar)
+bars.push(bar)
+}
+
+
+// ==== Audio ====
+let audioCtx=null
+let isPlaying=false
+let melodyInterval=null
+let currentGain=null
+
+const scale=[293.66,329.63,349.23,392,440,493.88,523.25]
+const melody=[0,2,4,3,2,0,2,4,5,4,3,2]
+
+function pluck(ctx,freq,time,dur,gain){
+
+const osc=ctx.createOscillator()
+const g=ctx.createGain()
+
+osc.type="triangle"
+osc.frequency.setValueAtTime(freq,time)
+
+g.gain.setValueAtTime(0.15,time)
+g.gain.exponentialRampToValueAtTime(0.001,time+dur)
+
+osc.connect(g)
+g.connect(gain)
+
+osc.start(time)
+osc.stop(time+dur)
+
+}
+
+function playMelody(){
+
+if(!audioCtx)
+audioCtx=new(window.AudioContext||window.webkitAudioContext)()
+
+currentGain=audioCtx.createGain()
+currentGain.connect(audioCtx.destination)
+
+let index=0
+let dur=0.35
+let gap=0.38
+let start=audioCtx.currentTime+0.1
+
+function schedule(){
+
+for(let i=0;i<6;i++){
+
+let f=scale[melody[index]]
+pluck(audioCtx,f,start,dur,currentGain)
+
+start+=gap
+index++
+
+if(index>=melody.length)index=0
+}
+
+}
+
+schedule()
+melodyInterval=setInterval(schedule,gap*6*1000)
+
+}
+
+function stopMelody(){
+
+clearInterval(melodyInterval)
+
+if(currentGain){
+let now=audioCtx.currentTime
+currentGain.gain.setValueAtTime(1,now)
+currentGain.gain.exponentialRampToValueAtTime(0.001,now+0.5)
+}
+
+}
+
+
+// ==== Buttons ====
+const playBtn=document.getElementById("playBtn")
+const playIcon=document.getElementById("playIcon")
+const label=document.getElementById("musicLabel")
+
+function startMusic(){
+
+if(!isPlaying){
+
+playMelody()
+isPlaying=true
+
+playIcon.className="fas fa-pause"
+label.textContent="🎶 Домбыра ойнап тұр..."
+
+bars.forEach(b=>b.classList.add("active"))
+
+}
+
+}
+
+function stopMusic(){
+
+stopMelody()
+isPlaying=false
+
+playIcon.className="fas fa-play"
+label.textContent="Әуенді тыңдау үшін басыңыз"
+
+bars.forEach(b=>b.classList.remove("active"))
+
+}
+
+playBtn.onclick=function(){
+
+if(isPlaying)stopMusic()
+else startMusic()
+
+}
+
+
+// ==== AUTO MUSIC ====
+window.addEventListener("load",()=>{
+
+setTimeout(()=>{
+
+try{startMusic()}catch(e){}
+
+},800)
+
+})
+
+
+// ==== FIRST CLICK FALLBACK ====
+document.addEventListener("click",function first(){
+
+startMusic()
+document.removeEventListener("click",first)
+
+})
+
+})()
+</script>
+
+</body>
+</html>
